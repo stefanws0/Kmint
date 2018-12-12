@@ -35,6 +35,11 @@ map::map_node const &find_random_mooring_place(map::map_graph const &graph);
 ///
 map::map_node const &find_shark_resting_place(map::map_graph const &graph);
 
+///
+/// Find shortest path
+///
+map::map_node const &find_shortest_route(map::map_graph const &graph, map::map_node& current, map::map_node& end);
+ 
 } // namespace pigisland
 } // namespace kmint
 

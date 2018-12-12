@@ -25,6 +25,19 @@ map::map_node const &find_shark_resting_place(map::map_graph const &graph) {
   return find_node_of_kind(graph, 'K');
 }
 
+map::map_node const &find_shortest_route(map::map_graph const &graph, map::map_node& current, map::map_node& end)
+{
+	for (auto it = current.begin(); it != current.end(); ++it)
+	{
+		map::map_node* neighbor = nullptr;
+		
+		if (it->to() != current)
+		{
+
+		}
+	}
+}
+
 int waiting_time(map::map_node const &node) {
   return static_cast<int>(node[0].weight());
 }
