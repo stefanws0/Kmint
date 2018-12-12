@@ -15,7 +15,7 @@ namespace kmint {
 			
 		}
 
-		void shark::addPig(pig& p)
+		void shark::add_pig(actor& p)
 		{
 			pigs_.emplace_back(&p);
 		}

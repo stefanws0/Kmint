@@ -31,7 +31,7 @@ int main() {
 	auto& pig = s.build_actor<pigisland::pig>(math::vector2d(i * 10.0f, i * 6.0f));
 	pig.set_boat(boat);
 	pig.set_shark(shark);
-	shark.addPig(pig);
+	shark.add_pig(pig);
   }
 
   // Maak een event_source aan (hieruit kun je alle events halen, zoals
