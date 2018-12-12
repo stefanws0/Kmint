@@ -17,7 +17,35 @@ math::vector2d random_vector() {
 } // namespace
 
 pig::pig(math::vector2d location)
-	: free_roaming_actor{ random_vector() }, drawable_{ *this, pig_image() } {}
+	: free_roaming_actor{ random_vector() }, drawable_{ *this, pig_image() }
+{
+	shark_attraction_ = float(random_int(-10, 10)) / 10;
+	boat_attraction_ = float(random_int(-10, 10)) / 10;
+	cohesion_ = float(random_int(0, 10)) / 10;
+	separation_ = float(random_int(0, 10)) / 10;
+	alignment_ = float(random_int(0, 10)) / 10;
+}
+
+	/**
+ * \brief 
+ * \param location 
+ * \param shark_attraction 
+ * \param boat_attraction 
+ * \param cohesion 
+ * \param separation 
+ * \param alignment 
+ */
+pig::pig(math::vector2d location, const float shark_attraction, const float boat_attraction, const float cohesion, const float separation,
+         float alignment)
+	: free_roaming_actor{ random_vector() },
+	shark_attraction_{ shark_attraction },
+	boat_attraction_{ boat_attraction },
+	cohesion_{ cohesion },
+	separation_{ separation },
+	alignment_{ alignment },
+	drawable_{*this, pig_image()}
+{
+}
       
 
 void pig::act(delta_time dt) {

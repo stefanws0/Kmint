@@ -9,6 +9,12 @@ namespace kmint {
 		class pig : public play::free_roaming_actor {
 		public:
 			explicit pig(math::vector2d location);
+			pig(math::vector2d location,
+				float shark_attraction,
+				float boat_attraction,
+				float cohesion,
+			    float separation,
+			    float alignment);
 			const ui::drawable &drawable() const override { return drawable_; }
 			void move(math::vector2d delta) { location(location() + delta); }
 			void act(delta_time dt) override;
@@ -16,7 +22,11 @@ namespace kmint {
 			scalar range_of_perception() const override { return 30.0f; }
 
 		private:
-
+			float shark_attraction_;
+			float boat_attraction_;
+			float cohesion_;
+			float separation_;
+			float alignment_;
 			play::image_drawable drawable_;
 		};
 
