@@ -2,6 +2,8 @@
 #define KMINT_PIGISLAND_PIG_HPP
 
 #include "kmint/play.hpp"
+#include "kmint/pigisland/shark.hpp"
+#include "kmint/pigisland/boat.hpp"
 
 namespace kmint {
 	namespace pigisland {
@@ -15,6 +17,8 @@ namespace kmint {
 				float cohesion,
 			    float separation,
 			    float alignment);
+			void set_shark(shark& shark);
+			void set_boat(boat& boat);
 			const ui::drawable &drawable() const override { return drawable_; }
 			void move(math::vector2d delta) { location(location() + delta); }
 			void act(delta_time dt) override;
@@ -22,6 +26,8 @@ namespace kmint {
 			scalar range_of_perception() const override { return 30.0f; }
 
 		private:
+			shark* shark_;
+			boat* boat_;
 			float shark_attraction_;
 			float boat_attraction_;
 			float cohesion_;

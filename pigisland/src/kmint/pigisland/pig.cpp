@@ -3,6 +3,8 @@
 #include "kmint/pigisland/resources.hpp"
 #include "kmint/random.hpp"
 #include <cmath>
+#include "kmint/pigisland/shark.hpp"
+#include "kmint/pigisland/boat.hpp"
 
 namespace kmint {
 namespace pigisland {
@@ -46,7 +48,16 @@ pig::pig(math::vector2d location, const float shark_attraction, const float boat
 	drawable_{*this, pig_image()}
 {
 }
-      
+
+void pig::set_shark(shark& shark)
+{
+	shark_ = &shark;
+}
+
+void pig::set_boat(boat& boat)
+{
+	boat_ = &boat;
+}
 
 void pig::act(delta_time dt) {
   free_roaming_actor::act(dt);
