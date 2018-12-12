@@ -1,6 +1,5 @@
 #ifndef KMINT_PIGISLAND_PIG_HPP
 #define KMINT_PIGISLAND_PIG_HPP
-
 #include "kmint/play.hpp"
 
 namespace kmint {
@@ -26,6 +25,9 @@ namespace kmint {
 		private:
 			actor* shark_;
 			actor* boat_;
+			bool boarded_;
+			math::vector2d vector_;
+			int neighbor_count_;
 			float shark_attraction_;
 			float boat_attraction_;
 			float cohesion_;
