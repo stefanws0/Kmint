@@ -17,7 +17,8 @@ int main() {
   // maak een podium aan
   play::stage s{};
 
-	// hoi
+  int x = 10;
+
   auto map = pigisland::map();
   map.graph()[0].tagged(true);
   s.build_actor<play::background>(math::size(1024, 768),
