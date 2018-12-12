@@ -22,11 +22,17 @@ int main() {
   s.build_actor<play::background>(math::size(1024, 768),
                                   graphics::image{map.background_image()});
   s.build_actor<play::map_actor>(math::vector2d{0.f, 0.f}, map.graph());
-  for (int i = 0; i < 100; ++i) {
-    s.build_actor<pigisland::pig>(math::vector2d(i * 10.0f, i * 6.0f));
-  }
+  
   auto& shark = s.build_actor<pigisland::shark>(map.graph());
   auto& boat = s.build_actor<pigisland::boat>(map.graph());
+
+  for (int i = 0; i < 100; ++i) 
+  {
+	auto& pig = s.build_actor<pigisland::pig>(math::vector2d(i * 10.0f, i * 6.0f));
+	pig.set_boat(boat);
+	pig.set_shark(shark);
+	shark.addPig(pig);
+  }
 
   // Maak een event_source aan (hieruit kun je alle events halen, zoals
   // toetsaanslagen)

@@ -1,6 +1,7 @@
 #include "kmint/pigisland/shark.hpp"
 #include "kmint/pigisland/node_algorithm.hpp"
 #include "kmint/pigisland/resources.hpp"
+#include "kmint/pigisland/pig.hpp"
 #include "kmint/random.hpp"
 
 #include <iostream>
@@ -12,6 +13,11 @@ namespace kmint {
 			play::map_bound_actor{ g, find_shark_resting_place(g) }, drawable_{ *this, shark_image() }, map_{ &g }, resting_place_(&node())
 		{
 			
+		}
+
+		void shark::addPig(pig& p)
+		{
+			pigs_.emplace_back(&p);
 		}
 
 		void shark::act(delta_time dt) 
@@ -26,8 +32,8 @@ namespace kmint {
 			  // (x - center_x) ^ 2 + (y - center_y) ^ 2 < radius ^ 2
 			  // radius = 100
 			
-			  math::vector2d v = node().location();
-			  std::cout << "X: " << v.x() << " Y: " << v.y() << std::endl;
+			  std::cout << "X: " << node().location().x() << " Y: " << node().location().y() << std::endl;
+
 		}
 
 	} // namespace pigisland
