@@ -26,9 +26,9 @@ int main() {
   auto& shark = s.build_actor<pigisland::shark>(map.graph());
   auto& boat = s.build_actor<pigisland::boat>(map.graph());
 
-  for (int i = 0; i < 100; ++i) 
+  for (auto i = 0; i < 100; ++i) 
   {
-	auto& pig = s.build_actor<pigisland::pig>(math::vector2d(i * 10.0f, i * 6.0f));
+	auto& pig = s.build_actor<pigisland::pig>(math::vector2d(i * 10.0f, i * 6.0f), i);
 	pig.set_boat(boat);
 	pig.set_shark(shark);
 	shark.add_pig(pig);
