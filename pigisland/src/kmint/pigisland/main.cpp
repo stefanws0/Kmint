@@ -25,8 +25,8 @@ int main() {
   for (int i = 0; i < 100; ++i) {
     s.build_actor<pigisland::pig>(math::vector2d(i * 10.0f, i * 6.0f));
   }
-  s.build_actor<pigisland::shark>(map.graph());
-  s.build_actor<pigisland::boat>(map.graph());
+  auto& shark = s.build_actor<pigisland::shark>(map.graph());
+  auto& boat = s.build_actor<pigisland::boat>(map.graph());
 
   // Maak een event_source aan (hieruit kun je alle events halen, zoals
   // toetsaanslagen)
