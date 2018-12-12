@@ -31,10 +31,12 @@ map::map_node const &find_shortest_route(map::map_graph const &graph, map::map_n
 	{
 		map::map_node* neighbor = nullptr;
 		
-		if (it->to() != current)
+		/*if (it->to() != current)
 		{
+			
+		}*/
 
-		}
+		return *neighbor;
 	}
 }
 
