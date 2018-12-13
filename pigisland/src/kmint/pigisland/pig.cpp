@@ -1,6 +1,7 @@
 #include "kmint/pigisland/pig.hpp"
 #include "kmint/math/angle.hpp"
 #include "kmint/pigisland/resources.hpp"
+#include "kmint/pigisland/steering_behaviors.hpp"
 #include "kmint/random.hpp"
 #include <cmath>
 
@@ -27,6 +28,8 @@ namespace kmint {
 			alignment_ = float(random_int(0, 10)) / 10;
 			boarded_ = false;
 			behaviors_ = std::make_unique<steering_behaviors>(this);
+			velocity_ = { 1,1 };
+			mass_ = 1;
 		}
 
 		/**
@@ -53,51 +56,41 @@ namespace kmint {
 		{
 		}
 
-		bool pig::operator!=(const pig& rhs) const
-		{
-			return (index_ != rhs.index_);
-		}
+		bool pig::operator!=(const pig& rhs) const {return (index_ != rhs.index_);}
+		void pig::set_shark(actor& shark) {shark_ = &shark;}
+		void pig::set_boat(actor& boat)	{boat_ = &boat;}
+		float pig::max_speed() const {return max_speed_;}
+		math::vector2d pig::velocity() const {return velocity_;}
+		bool pig::tag() const {return tag_;}
 
-		void pig::set_shark(actor& shark)
+		void pig::velocity(const math::vector2d velocity)
 		{
-			shark_ = &shark;
-		}
+			auto l = sqrt((velocity.x() * velocity.x()) + (velocity.y() * velocity.y()));
+			if(l <= max_speed())
+			{
+				velocity_ = velocity;
+			}
+			else
+			{
+				velocity_ = velocity / l * max_speed();
+			}
 
-		void pig::set_boat(actor& boat)
-		{
-			boat_ = &boat;
-		}
-
-		float pig::max_speed() const
-		{
-			return max_speed_;
-		}
-
-		math::vector2d pig::velocity() const
-		{
-			return velocity_;
-		}
-
-		bool pig::tag() const
-		{
-			return tag_;
 		}
 
 		void pig::act(delta_time dt) {
-			auto boat_location = boat_->location();
-			auto shark_location = shark_->location();
-			auto pig_location = location();
+			math::vector2d steering_force = {1, 1};
 
-			if (pig_location.x() == boat_location.x() && boat_location.y() == pig_location.y())
+			math::vector2d acceleration = steering_force / mass_;
+			velocity(velocity_ += acceleration * (dt.count() / 1000000000));
+
+			location(location() += velocity() *(dt.count() / 1000000000));
+
+			if(math::norm2(velocity_) < 0.00000001 )	
 			{
-				boarded_ = true;
+				heading_ = math::normalize(velocity_);
+				side_ = math::perp(heading_);
 			}
-			if (boarded_)
-			{
-				pig_location.y(boat_location.y());
-				pig_location.x(boat_location.x());
-			}
-			location(pig_location);
+			//check boundaries
 
 			free_roaming_actor::act(dt);
 		}

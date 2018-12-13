@@ -4,7 +4,7 @@
 
 namespace kmint {
 	namespace pigisland {
-		steering_behaviors::steering_behaviors(kmint::pigisland::pig* owner) : owner_ { owner }
+		steering_behaviors::steering_behaviors(pig* owner) : owner_ { owner }
 		{
 		}
 
@@ -31,7 +31,7 @@ namespace kmint {
 			auto to_target = target_position - owner_->location();
 
 			//calculate the distance to the target position
-			const double dist = sqrt(to_target.x() * to_target.x() + to_target.y() * to_target.y());
+			const double dist = sqrt((to_target.x() * to_target.x()) + (to_target.y() * to_target.y()));
 
 			if (dist > 0)
 			{

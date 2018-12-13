@@ -1,13 +1,15 @@
 #ifndef KMINT_PIGISLAND_STEERING_BEHAVIORS_HPP
 #define KMINT_PIGISLAND_STEERING_BEHAVIORS_HPP
 #include "kmint/play.hpp"
-#include "kmint/pigisland/pig.hpp"
+#include "pig.hpp"
+
+class pig;
 
 namespace kmint {
 	namespace pigisland {
 		class steering_behaviors {
 		public:
-			explicit steering_behaviors(kmint::pigisland::pig* owner);
+			steering_behaviors(pig* owner);
 			math::vector2d seek(math::vector2d target_position) const;
 			math::vector2d arrive(math::vector2d target_position, int deceleration) const;
 			math::vector2d separation(const std::vector<pig*>& neighbors) const;

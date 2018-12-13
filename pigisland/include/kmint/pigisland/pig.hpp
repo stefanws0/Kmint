@@ -1,12 +1,13 @@
 #ifndef KMINT_PIGISLAND_PIG_HPP
 #define KMINT_PIGISLAND_PIG_HPP
 #include "kmint/play.hpp"
-#include "kmint/pigisland/steering_behaviors.hpp"
+#include <memory>
 
-class steering_behaviors;
 
 namespace kmint {
 	namespace pigisland {
+
+		class steering_behaviors;
 
 		class pig : public play::free_roaming_actor {
 		public:
@@ -25,6 +26,7 @@ namespace kmint {
 			void set_boat(actor& boat);
 			float max_speed() const;
 			math::vector2d velocity() const;
+			void velocity(math::vector2d velocity);
 			bool tag() const;
 			void act(delta_time dt) override;
 			bool perceptive() const override { return true; }
