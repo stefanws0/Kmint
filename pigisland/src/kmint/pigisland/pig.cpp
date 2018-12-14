@@ -29,6 +29,7 @@ namespace kmint {
 			boarded_ = false;
 			behaviors_ = std::make_unique<steering_behaviors>(this);
 			velocity_ = { 1,1 };
+			max_speed_ = 5;
 			mass_ = 1;
 		}
 
@@ -81,9 +82,12 @@ namespace kmint {
 			math::vector2d steering_force = {1, 1};
 
 			math::vector2d acceleration = steering_force / mass_;
-			velocity(velocity_ += acceleration * (dt.count() / 1000000000));
 
-			location(location() += velocity() *(dt.count() / 1000000000));
+			// times delta time
+			velocity(velocity_ += acceleration);
+
+			// times delta time
+			location(location() += velocity());
 
 			if(math::norm2(velocity_) < 0.00000001 )	
 			{
