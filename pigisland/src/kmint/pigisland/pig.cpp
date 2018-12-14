@@ -1,7 +1,10 @@
 #include "kmint/pigisland/pig.hpp"
 #include "kmint/math/angle.hpp"
 #include "kmint/pigisland/resources.hpp"
+#include "kmint/pigisland/wall.hpp"
 #include "kmint/pigisland/steering_behaviors.hpp"
+#include "kmint/pigisland/boat.hpp"
+#include "kmint/pigisland/shark.hpp"
 #include "kmint/random.hpp"
 #include <cmath>
 
@@ -17,8 +20,8 @@ namespace kmint {
 			}
 		} // namespace
 
-		pig::pig(math::vector2d location, const int index)
-			: free_roaming_actor{ random_vector() }, drawable_{ *this, pig_image() }
+		pig::pig(math::vector2d location, const int index, const std::vector<pigisland::wall>& walls)
+			: free_roaming_actor{ random_vector() }, walls_(walls), drawable_{ *this, pig_image() }
 		{
 			index_ = index;
 			shark_attraction_ = float(random_int(-10, 10)) / 10;
@@ -27,10 +30,9 @@ namespace kmint {
 			separation_ = float(random_int(0, 10)) / 10;
 			alignment_ = float(random_int(0, 10)) / 10;
 			boarded_ = false;
-			behaviors_ = std::make_unique<steering_behaviors>(this);
-			velocity_ = { 1,1 };
-			max_speed_ = 5;
-			mass_ = 1;
+			behaviors_ = std::make_unique<steering_behaviors>(this, walls);
+			max_speed_ = 1;
+			mass_ = 10;
 		}
 
 		/**
@@ -58,8 +60,8 @@ namespace kmint {
 		}
 
 		bool pig::operator!=(const pig& rhs) const {return (index_ != rhs.index_);}
-		void pig::set_shark(actor& shark) {shark_ = &shark;}
-		void pig::set_boat(actor& boat)	{boat_ = &boat;}
+		void pig::set_shark(shark& shark) {shark_ = &shark;}
+		void pig::set_boat(boat& boat)	{boat_ = &boat;}
 		float pig::max_speed() const {return max_speed_;}
 		math::vector2d pig::velocity() const {return velocity_;}
 		bool pig::tag() const {return tag_;}
@@ -79,9 +81,9 @@ namespace kmint {
 		}
 
 		void pig::act(delta_time dt) {
-			math::vector2d steering_force = {1, 1};
+			const auto steering_force = behaviors_->calculate(boat_->location(), boat_attraction_, shark_->location(), shark_attraction_);
 
-			math::vector2d acceleration = steering_force / mass_;
+			const auto acceleration = steering_force / mass_;
 
 			// times delta time
 			velocity(velocity_ += acceleration);

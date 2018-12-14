@@ -1,10 +1,14 @@
 #include "kmint/pigisland/steering_behaviors.hpp"
 #include "kmint/pigisland/pig.hpp"
+#include "kmint/pigisland/wall.hpp"
 #include <cmath>
 
 namespace kmint {
 	namespace pigisland {
-		steering_behaviors::steering_behaviors(pig* owner) : owner_ { owner }
+		steering_behaviors::steering_behaviors(pig* owner, std::vector<wall> walls ) : owner_ { owner }, walls_{
+			std::move(
+				std::move(walls))
+		}
 		{
 		}
 
@@ -141,6 +145,109 @@ namespace kmint {
 
 				steering_force = seek(center_of_mass);
 			}
+
+			return steering_force;
+		}
+
+		inline bool line_intersection(math::vector2d A,math::vector2d B,math::vector2d C,math::vector2d D,	double& dist,math::vector2d& point)
+		{
+
+			double rTop = (A.y - C.y)*(D.x - C.x) - (A.x - C.x)*(D.y - C.y);
+			double rBot = (B.x - A.x)*(D.y - C.y) - (B.y - A.y)*(D.x - C.x);
+
+			double sTop = (A.y - C.y)*(B.x - A.x) - (A.x - C.x)*(B.y - A.y);
+			double sBot = (B.x - A.x)*(D.y - C.y) - (B.y - A.y)*(D.x - C.x);
+
+			if ((rBot == 0) || (sBot == 0))
+			{
+				//lines are parallel
+				return false;
+			}
+
+			double r = rTop / rBot;
+			double s = sTop / sBot;
+
+			if ((r > 0) && (r < 1) && (s > 0) && (s < 1))
+			{
+				dist = math::distance(A, B) * r;
+
+				point = A + r * (B - A);
+
+				return true;
+			}
+
+			else
+			{
+				dist = 0;
+
+				return false;
+			}
+		}
+
+
+		math::vector2d steering_behaviors::wall_avoidance(const std::vector<wall>& walls)
+		{
+			create_feelers();
+
+			auto distance_to_this_ip = 0.0;
+			auto distance_to_closest_ip = std::numeric_limits<double>::max();
+
+			auto closest_wall = -1;
+
+			math::vector2d steering_force;
+			math::vector2d point;
+			math::vector2d closest_point;
+
+			for (const auto feeler : feelers_)
+			{
+				for(auto w = 0; w < walls_.size(); w++)
+				{
+					if(line_intersection(
+						owner_->location(),
+						feeler,
+						walls_.at(w).from(),
+						walls_.at(w).to(),
+						distance_to_this_ip,
+						point))
+					{
+						if(distance_to_closest_ip < distance_to_this_ip)
+						{
+							distance_to_closest_ip = distance_to_this_ip;
+
+							closest_wall = w;
+
+							closest_point = point;
+						}
+					}
+				}
+				if(closest_wall >= 0 )
+				{
+					const math::vector2d overshoot = feeler - closest_point;
+					steering_force = walls.at(closest_wall).normal() * math::norm(overshoot);
+				}
+			}
+
+			return steering_force;
+		}
+
+		math::vector2d steering_behaviors::obstacle_avoidance(const std::vector<pig*> &obstacles)
+		{
+			return {0,0};
+		}
+
+		void steering_behaviors::create_feelers()
+		{
+			feelers_.push_back(owner_->location() + math::normalize(owner_->velocity() * 32));
+			feelers_.push_back(owner_->location() + math::normalize(owner_->velocity() * 64));
+			feelers_.push_back(owner_->location() + math::normalize(owner_->velocity() * 96));
+		}
+
+		math::vector2d steering_behaviors::calculate(math::vector2d boat_location, float boat_attraction, math::vector2d shark_location, float shark_attraction) const
+		{
+			math::vector2d steering_force;
+
+			steering_force += arrive(boat_location, 1) * boat_attraction;
+			steering_force += arrive(shark_location, 1) * shark_attraction;
 
 			return steering_force;
 		}

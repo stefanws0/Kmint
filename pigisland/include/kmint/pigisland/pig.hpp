@@ -7,11 +7,14 @@
 namespace kmint {
 	namespace pigisland {
 
+		class wall;
+		class shark;
+		class boat;
 		class steering_behaviors;
 
 		class pig : public play::free_roaming_actor {
 		public:
-			explicit pig(math::vector2d location, const int index);
+			explicit pig(math::vector2d location, const int index, const std::vector<wall>& walls);
 			pig(math::vector2d location,
 				int index,
 				float shark_attraction,
@@ -20,10 +23,10 @@ namespace kmint {
 			    float separation,
 			    float alignment);
 			bool operator!=(const pig& rhs) const;
-			void set_shark(actor& shark);
+			void set_shark(shark& shark);
 			const ui::drawable &drawable() const override { return drawable_; }
 			void move(math::vector2d delta) { location(location() + delta); }
-			void set_boat(actor& boat);
+			void set_boat(boat& boat);
 			float max_speed() const;
 			math::vector2d velocity() const;
 			void velocity(math::vector2d velocity);
@@ -39,6 +42,7 @@ namespace kmint {
 			std::unique_ptr<steering_behaviors> behaviors_;
 			bool tag_;
 			bool boarded_;
+			std::vector<wall> walls_;
 			math::vector2d velocity_;
 			math::vector2d heading_;
 			math::vector2d side_;
