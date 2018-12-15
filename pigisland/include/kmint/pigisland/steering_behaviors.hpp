@@ -8,6 +8,7 @@ namespace kmint {
 
 		class pig;
 		class wall;
+		class matrix;
 
 		class steering_behaviors {
 		public:
@@ -17,11 +18,11 @@ namespace kmint {
 			math::vector2d separation(const std::vector<pig*>& neighbors) const;
 			math::vector2d alignment(const std::vector<pig*>& neighbors);
 			math::vector2d cohesion(const std::vector<pig*>& neighbors);
-			math::vector2d wall_avoidance(const std::vector<wall>& walls);
+			math::vector2d wall_avoidance(std::vector<wall>& walls);
 			math::vector2d obstacle_avoidance(const std::vector<pig*>& obstacles);
 			void create_feelers();
 			math::vector2d calculate(math::vector2d boat_location, float boat_attraction, math::vector2d shark_location,
-			                         float shark_attraction) const;
+			                         float shark_attraction);
 
 		private:
 			pig* owner_;

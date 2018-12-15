@@ -31,7 +31,7 @@ namespace kmint {
 			alignment_ = float(random_int(0, 10)) / 10;
 			boarded_ = false;
 			behaviors_ = std::make_unique<steering_behaviors>(this, walls);
-			max_speed_ = 1;
+			max_speed_ = 20;
 			mass_ = 10;
 		}
 
@@ -86,10 +86,10 @@ namespace kmint {
 			const auto acceleration = steering_force / mass_;
 
 			// times delta time
-			velocity(velocity_ += acceleration);
+			velocity(velocity_ += acceleration * dt.count() / 1000000000);
 
 			// times delta time
-			location(location() += velocity());
+			location(location() += velocity() * dt.count() /1000000000);
 
 			if(math::norm2(velocity_) < 0.00000001 )	
 			{

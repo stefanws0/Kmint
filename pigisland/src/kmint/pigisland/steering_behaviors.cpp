@@ -2,13 +2,11 @@
 #include "kmint/pigisland/pig.hpp"
 #include "kmint/pigisland/wall.hpp"
 #include <cmath>
+#include "kmint/pigisland/matrix.hpp"
 
 namespace kmint {
 	namespace pigisland {
-		steering_behaviors::steering_behaviors(pig* owner, std::vector<wall> walls ) : owner_ { owner }, walls_{
-			std::move(
-				std::move(walls))
-		}
+		steering_behaviors::steering_behaviors(pig* owner, std::vector<wall> walls ) : owner_ { owner }, walls_{ walls }
 		{
 		}
 
@@ -149,29 +147,28 @@ namespace kmint {
 			return steering_force;
 		}
 
-		inline bool line_intersection(math::vector2d A,math::vector2d B,math::vector2d C,math::vector2d D,	double& dist,math::vector2d& point)
+		inline bool line_intersection(math::vector2d a, math::vector2d b, math::vector2d c, math::vector2d d, double& dist, math::vector2d& point)
 		{
+			const double r_top = (a.y() - c.y())*(d.x() - c.x()) - (a.x() - c.x())*(d.y() - c.y());
+			const double r_bot = (b.x() - a.x())*(d.y() - c.y()) - (b.y() - a.y())*(d.x() - c.x());
 
-			double rTop = (A.y - C.y)*(D.x - C.x) - (A.x - C.x)*(D.y - C.y);
-			double rBot = (B.x - A.x)*(D.y - C.y) - (B.y - A.y)*(D.x - C.x);
+			const double s_top = (a.y() - c.y())*(b.x() - a.x()) - (a.x() - c.x())*(b.y() - a.y());
+			const double s_bot = (b.x() - a.x())*(d.y() - c.y()) - (b.y() - a.y())*(d.x() - c.x());
 
-			double sTop = (A.y - C.y)*(B.x - A.x) - (A.x - C.x)*(B.y - A.y);
-			double sBot = (B.x - A.x)*(D.y - C.y) - (B.y - A.y)*(D.x - C.x);
-
-			if ((rBot == 0) || (sBot == 0))
+			if ((r_bot == 0) || (s_bot == 0))
 			{
 				//lines are parallel
 				return false;
 			}
 
-			double r = rTop / rBot;
-			double s = sTop / sBot;
+			const auto r = r_top / r_bot;
+			const auto s = s_top / s_bot;
 
 			if ((r > 0) && (r < 1) && (s > 0) && (s < 1))
 			{
-				dist = math::distance(A, B) * r;
+				dist = math::distance(a, b) * r;
 
-				point = A + r * (B - A);
+				point = a + r * (b - a);
 
 				return true;
 			}
@@ -184,8 +181,24 @@ namespace kmint {
 			}
 		}
 
+		inline void rotate_around_origin(math::vector2d& v, const double ang)
+		{
+			//create a transformation matrix
+			matrix2d mat;
 
-		math::vector2d steering_behaviors::wall_avoidance(const std::vector<wall>& walls)
+			//
+			mat.rotate(ang);
+
+			//now transform the object's vertices
+			mat.transform_vectors(v);
+		}
+
+		/**
+		 * \brief 
+		 * \param walls 
+		 * \return 
+		 */
+		math::vector2d steering_behaviors::wall_avoidance(std::vector<wall>& walls)
 		{
 			create_feelers();
 
@@ -222,7 +235,7 @@ namespace kmint {
 				}
 				if(closest_wall >= 0 )
 				{
-					const math::vector2d overshoot = feeler - closest_point;
+					const auto overshoot = feeler - closest_point;
 					steering_force = walls.at(closest_wall).normal() * math::norm(overshoot);
 				}
 			}
@@ -237,17 +250,28 @@ namespace kmint {
 
 		void steering_behaviors::create_feelers()
 		{
-			feelers_.push_back(owner_->location() + math::normalize(owner_->velocity() * 32));
-			feelers_.push_back(owner_->location() + math::normalize(owner_->velocity() * 64));
-			feelers_.push_back(owner_->location() + math::normalize(owner_->velocity() * 96));
+			feelers_.clear();
+			//feeler pointing straight in front
+			feelers_.push_back(owner_->location() + 100 * owner_->heading());
+
+			//feeler to left
+			auto temp = owner_->heading();
+			rotate_around_origin(temp, (3.14159 / 2) * 3.5f);
+			feelers_.push_back(owner_->location() + 100 / 2.0f * temp);
+
+			//feeler to right
+			temp = owner_->heading();
+			rotate_around_origin(temp, (3.14159 / 2) * 0.5f);
+			feelers_.push_back(owner_->location() + 100 / 2.0f * temp);
 		}
 
-		math::vector2d steering_behaviors::calculate(math::vector2d boat_location, float boat_attraction, math::vector2d shark_location, float shark_attraction) const
+		math::vector2d steering_behaviors::calculate(const math::vector2d boat_location, const float boat_attraction, const math::vector2d shark_location, const float shark_attraction)
 		{
 			math::vector2d steering_force;
 
-			steering_force += arrive(boat_location, 1) * boat_attraction;
-			steering_force += arrive(shark_location, 1) * shark_attraction;
+			steering_force += wall_avoidance(walls_) * 10;
+			steering_force += arrive(boat_location, 2) * boat_attraction;
+			steering_force += arrive(shark_location, 2) * shark_attraction;
 
 			return steering_force;
 		}
