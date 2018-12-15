@@ -18,8 +18,7 @@ namespace kmint {
 			const ui::drawable &drawable() const override { return drawable_; }
 			void move(math::vector2d delta) { location(location() + delta); }
 			void set_boat(actor& boat);
-			math::vector2d calculate_boat_direction(float boat_attraction, math::vector2d pig_location,
-			                                        math::vector2d boat_location);
+
 			void act(delta_time dt) override;
 			bool perceptive() const override { return true; }
 			scalar range_of_perception() const override { return 30.0f; }
