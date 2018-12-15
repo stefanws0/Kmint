@@ -24,6 +24,7 @@ pig::pig(math::vector2d location)
 	cohesion_ = float(random_int(0, 10)) / 10;
 	separation_ = float(random_int(0, 10)) / 10;
 	alignment_ = float(random_int(0, 10)) / 10;
+	boarded_ = false;
 }
 
 	/**
@@ -38,6 +39,7 @@ pig::pig(math::vector2d location)
 pig::pig(math::vector2d location, const float shark_attraction, const float boat_attraction, const float cohesion, const float separation,
          float alignment)
 	: free_roaming_actor{ random_vector() },
+	boarded_{ false },
 	shark_attraction_{ shark_attraction },
 	boat_attraction_{ boat_attraction },
 	cohesion_{ cohesion },
@@ -57,7 +59,128 @@ void pig::set_boat(actor& boat)
 	boat_ = &boat;
 }
 
+math::vector2d calculate_boat_direction(float boat_attraction, math::vector2d pig_location, math::vector2d boat_location)
+{
+	math::vector2d new_location = { pig_location.x(), pig_location.y() };
+	const float speed = (2 * boat_attraction);
+	if (boat_location.x() > pig_location.x())
+	{
+		if (boat_location.x() > pig_location.x() + speed)
+		{
+			new_location.x(new_location.x() + speed);
+		}
+		else
+		{
+			new_location.x(boat_location.x());
+		}
+	}
+	else
+	{
+		if (boat_location.x() < pig_location.x() - speed)
+		{
+			new_location.x(new_location.x() - speed);
+		}
+		else
+		{
+			new_location.x(boat_location.x());
+		}
+	}
+
+	if (boat_location.y() > pig_location.y())
+	{
+		if (boat_location.y() > pig_location.y() + speed)
+		{
+			new_location.y(new_location.y() + speed);
+		}
+		else
+		{
+			new_location.y(boat_location.y());
+		}
+	}
+	else
+	{
+		if (boat_location.y() < pig_location.y() - speed)
+		{
+			new_location.y(new_location.y() - speed);
+		}
+		else
+		{
+			new_location.y(boat_location.y());
+		}
+	}
+	return new_location;
+}
+
+math::vector2d calculate_shark_direction(float shark_attraction, math::vector2d pig_location, math::vector2d shark_location)
+{
+	math::vector2d new_location = { pig_location.x(), pig_location.y() };
+	const float speed = (1 * shark_attraction);
+	if (shark_location.x() > pig_location.x())
+	{
+		if (shark_location.x() > pig_location.x() + speed)
+		{
+			new_location.x(new_location.x() + speed);
+		}
+		else
+		{
+			new_location.x(shark_location.x());
+		}
+	}
+	else
+	{
+		if (shark_location.x() < pig_location.x() - speed)
+		{
+			new_location.x(new_location.x() - speed);
+		}
+		else
+		{
+			new_location.x(shark_location.x());
+		}
+	}
+
+	if (shark_location.y() > pig_location.y())
+	{
+		if (shark_location.y() > pig_location.y() + speed)
+		{
+			new_location.y(new_location.y() + speed);
+		}
+		else
+		{
+			new_location.y(shark_location.y());
+		}
+	}
+	else
+	{
+		if (shark_location.y() < pig_location.y() - speed)
+		{
+			new_location.y(new_location.y() - speed);
+		}
+		else
+		{
+			new_location.y(shark_location.y());
+		}
+	}
+	return new_location;
+}
+
 void pig::act(delta_time dt) {
+	auto boat_location = boat_->location();
+	auto shark_location = shark_->location();
+	auto pig_location = location();
+
+	pig_location = calculate_boat_direction(boat_attraction_, pig_location, boat_location);
+	pig_location = calculate_shark_direction(shark_attraction_, pig_location, shark_location);
+	if (pig_location.x() == boat_location.x() && boat_location.y() == pig_location.y())
+	{
+		boarded_ = true;
+	}
+	if (boarded_)
+	{
+		pig_location.y(boat_location.y());
+		pig_location.x(boat_location.x());
+	}
+	location(pig_location);
+	
   free_roaming_actor::act(dt);
 }
 } // namespace pigisland
