@@ -6,6 +6,7 @@
 #include "kmint/primitives.hpp"
 
 #include <vector>
+#include <memory>
 
 namespace kmint {
 	namespace pigisland {
@@ -24,6 +25,8 @@ namespace kmint {
 			map::map_node const *resting_place_;
 			std::vector<actor*> pigs_;
 			delta_time t_since_move_{};
+			int totalSteps_;
+			std::unique_ptr<std::vector<const map::map_node*>> route_;
 		};
 
 	} // namespace pigisland

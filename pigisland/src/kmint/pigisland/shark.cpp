@@ -11,7 +11,7 @@ namespace kmint {
 	namespace pigisland {
 
 		shark::shark(kmint::map::map_graph &g) :
-			play::map_bound_actor{ g, find_shark_resting_place(g) }, drawable_{ *this, shark_image() }, map_{ &g }, resting_place_(&node())
+			play::map_bound_actor{ g, find_shark_resting_place(g) }, drawable_{ *this, shark_image() }, map_{ &g }, resting_place_(&node()), totalSteps_{ 0 }, route_{ nullptr }
 		{
 
 		}
@@ -26,7 +26,26 @@ namespace kmint {
 			t_since_move_ += dt;
 			if (to_seconds(t_since_move_) >= waiting_time(node()))
 			{
-				node(random_adjacent_node(node()));
+				//node(random_adjacent_node(node()));
+				if (route_ == nullptr)
+				{
+					node(*map_->begin());
+					route_ = find_shortest_route(node(), *resting_place_);
+				}	
+				else if (route_->empty())
+				{
+					route_ = nullptr;
+				}	
+				else
+				{
+					const map::map_node* nextNode = *route_->begin();
+					node(*nextNode);
+					route_->erase(route_->begin());
+				}
+				
+				totalSteps_++;
+				std::cout << totalSteps_ << std::endl;
+
 				t_since_move_ = from_seconds(0);
 			}
 
@@ -34,15 +53,12 @@ namespace kmint {
 
 			for (actor* p : pigs_)
 			{
-				if (pow(p->location().x() - location().x(), 2) + pow(p->location().y() - location().y(), 2) < pow(100, 2))
+				if (pow(p->location().x() - location().x(), 2) + pow(p->location().y() - location().y(), 2) < pow(100, 2)) // (x - center_x)^2 + (y - center_y)^2 < radius^2
 				{
 					foundPig = p;
 				}
 			}
 
-			// (x - center_x)^2 + (y - center_y)^2 < radius^2
-			// radius = 100
 		}
-
 	} // namespace pigisland
 } // namespace kmint
