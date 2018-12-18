@@ -10,23 +10,27 @@
 
 namespace kmint {
 	namespace pigisland {
-		class shark : public play::map_bound_actor {
-		public:
-			shark(kmint::map::map_graph &g);
-			ui::drawable const &drawable() const override { return drawable_; }
-			bool incorporeal() const override { return false; }
-			scalar radius() const override { return 16.0; }
-			void act(delta_time dt) override;
-			void add_pig(actor& p);
 
-		private:
-			play::image_drawable drawable_;
-			map::map_graph *map_;
-			map::map_node const *resting_place_;
-			std::vector<actor*> pigs_;
-			delta_time t_since_move_{};
-			int totalSteps_;
-			std::unique_ptr<std::vector<const map::map_node*>> route_;
+		class shark_state;
+
+		class shark : public play::map_bound_actor {
+			public:
+				shark(kmint::map::map_graph &g);
+				ui::drawable const &drawable() const override { return drawable_; }
+				bool incorporeal() const override { return false; }
+				scalar radius() const override { return 16.0; }
+				void act(delta_time dt) override;
+				void add_pig(actor& p);
+
+			private:
+				play::image_drawable drawable_;
+				map::map_graph *map_;
+				map::map_node const *resting_place_;
+				std::vector<actor*> pigs_;
+				delta_time t_since_move_{};
+				int totalSteps_;
+				std::unique_ptr<shark_state> state_;
+				std::unique_ptr<std::vector<const map::map_node*>> route_;
 		};
 
 	} // namespace pigisland

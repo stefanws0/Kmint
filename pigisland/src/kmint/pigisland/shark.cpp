@@ -2,18 +2,20 @@
 #include "kmint/pigisland/node_algorithm.hpp"
 #include "kmint/pigisland/resources.hpp"
 #include "kmint/pigisland/pig.hpp"
+#include "kmint/pigisland/shark_state.hpp"
 #include "kmint/random.hpp"
 
 #include <iostream>
+#include <memory>
 #include <cmath>
 
 namespace kmint {
 	namespace pigisland {
 
 		shark::shark(kmint::map::map_graph &g) :
-			play::map_bound_actor{ g, find_shark_resting_place(g) }, drawable_{ *this, shark_image() }, map_{ &g }, resting_place_(&node()), totalSteps_{ 0 }, route_{ nullptr }
+			play::map_bound_actor{ g, find_shark_resting_place(g) }, drawable_{ *this, shark_image() }, map_{ &g }, 
+			resting_place_(&node()), totalSteps_{ 0 }, route_{ nullptr }, state_{ std::make_unique<shark_state>() }
 		{
-
 		}
 
 		void shark::add_pig(actor& p)

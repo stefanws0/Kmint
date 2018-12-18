@@ -12,7 +12,7 @@ int main() {
   ui::app app{};
 
   //  maak een venster aan
-  ui::window window{app.create_window({1024, 768}, "hello")};
+  ui::window window{app.create_window({1024, 768}, "hello", 0.75)};
 
   // maak een podium aan
   play::stage s{};

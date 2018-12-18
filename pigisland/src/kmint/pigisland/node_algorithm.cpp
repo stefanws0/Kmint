@@ -26,13 +26,17 @@ map::map_node const &find_shark_resting_place(map::map_graph const &graph) {
   return find_node_of_kind(graph, 'K');
 }
 
-const map::map_node* find_smallest_distance(std::map<const map::map_node*, float>& distances, std::vector<const map::map_node*>& closedList)
+const map::map_node* find_smallest_distance(std::map<const map::map_node*, float>& distances, std::vector<const map::map_node*>& closedList, map::map_node const &end)
 {
 	const map::map_node* smallestDistance = nullptr;
 
 	for (auto& pair : distances)
 	{
-		if (std::find(closedList.begin(), closedList.end(), pair.first) == closedList.end() && (smallestDistance == nullptr || pair.second < distances.find(smallestDistance)->second))
+		float heuristic_n = abs((pair.first->location().x() - end.location().x()) / 32) + abs((pair.first->location().y() - end.location().y()) / 32);
+		float heuristic_s = smallestDistance ? abs((smallestDistance->location().x() - end.location().x()) / 32) + abs((smallestDistance->location().y() - end.location().y()) / 32) : 0;
+
+		if (std::find(closedList.begin(), closedList.end(), pair.first) == closedList.end() && 
+			(smallestDistance == nullptr || pair.second + heuristic_n < distances.find(smallestDistance)->second + heuristic_s))
 			smallestDistance = pair.first;
 	}
 
@@ -45,41 +49,44 @@ std::unique_ptr<std::vector<const map::map_node*>> find_shortest_route(map::map_
 	std::vector<const map::map_node*> closedList;
 	std::map<const map::map_node*, float> distances;
 	std::map<const map::map_node*, const map::map_node*> previousNode;
-	bool foundEndNode = false;
 
 	openList.emplace_back(&current);
 	distances.insert(std::make_pair(&current, 0));
 	previousNode.insert(std::make_pair(&current, nullptr));
 
-	while (!openList.empty() || !foundEndNode)
+	while (!openList.empty())
 	{
-		const map::map_node* smallestDistance = find_smallest_distance(distances, closedList);
+		const map::map_node* smallestDistance = find_smallest_distance(distances, closedList, end);
 		openList.erase(std::remove(openList.begin(), openList.end(), smallestDistance), openList.end());
+
+		if (smallestDistance == &end)
+			break;
 
 		for (int i = 0; i < smallestDistance->num_edges(); i++)
 		{
 			const map::map_node* neighbor = &(*smallestDistance)[i].to();
-			previousNode.insert(std::make_pair(neighbor, smallestDistance));
-
-			if (neighbor == &end)
-				foundEndNode = true;
-
-			float cost = distances.find(smallestDistance)->second + (*smallestDistance)[i].weight();
-
-			if (distances.find(neighbor) == distances.end())
-				distances.insert(std::make_pair(neighbor, cost));
-			else if (cost < distances.find(neighbor)->second)
-			{
-				distances[neighbor] = cost;
-				previousNode[neighbor] = smallestDistance;
-			}
 			
 			if (std::find(closedList.begin(), closedList.end(), neighbor) == closedList.end())
+			{
 				openList.emplace_back(neighbor);
+				previousNode.insert(std::make_pair(neighbor, smallestDistance));
+				
+				float cost_n = distances.find(smallestDistance)->second + (*smallestDistance)[i].weight();
+				float heuristic_n = abs((neighbor->location().x() - end.location().x()) / 32) + abs((neighbor->location().y() - end.location().y()) / 32);
+
+				if (distances.find(neighbor) == distances.end())
+					distances.insert(std::make_pair(neighbor, cost_n));
+				else if (cost_n + heuristic_n < distances.find(neighbor)->second + heuristic_n)
+				{
+					distances[neighbor] = cost_n;
+					previousNode[neighbor] = smallestDistance;
+				}
+			}
 		}
 
 		closedList.push_back(smallestDistance);
-		smallestDistance->tagged();
+		map::map_node* temp = const_cast<map::map_node*>(smallestDistance);
+		temp->tagged(true);
 	}
 
 	auto route = std::make_unique<std::vector<const map::map_node*>>();
