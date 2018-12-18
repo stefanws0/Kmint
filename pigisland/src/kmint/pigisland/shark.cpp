@@ -14,7 +14,7 @@ namespace kmint {
 
 		shark::shark(kmint::map::map_graph &g) :
 			play::map_bound_actor{ g, find_shark_resting_place(g) }, drawable_{ *this, shark_image() }, map_{ &g }, 
-			resting_place_(&node()), totalSteps_{ 0 }, route_{ nullptr }, state_{ std::make_unique<shark_state>() }
+			resting_place_(&node()), totalSteps_{ 0 }, route_{ nullptr }, state_{ std::make_unique<shark_state>(this) }
 		{
 		}
 
