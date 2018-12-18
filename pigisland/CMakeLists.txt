@@ -20,7 +20,7 @@ add_executable(pigisland
   src/kmint/pigisland/steering_behaviors.cpp
   src/kmint/pigisland/matrix.cpp
   src/kmint/pigisland/wall.cpp
-  src/kmint/pigisland/pig.cpp)
+  src/kmint/pigisland/pig.cpp
   src/kmint/pigisland/shark_state.cpp)
 
 target_compile_features(pigisland PUBLIC cxx_std_17)
