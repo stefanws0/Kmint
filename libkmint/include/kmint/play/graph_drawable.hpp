@@ -31,7 +31,7 @@ public:
     for (auto const &node : *graph_) {
       auto color =
           graphics::color::from_hsv(120 * (1.f - normalize(node[0].weight())),
-                                    node.tagged() ? 0.5f : 1.f, 1.f);
+                                    node.tagged() ? 0.f : 1.f, 1.f);
       f.draw_rectangle(node.location(), node_size, color);
     }
   }

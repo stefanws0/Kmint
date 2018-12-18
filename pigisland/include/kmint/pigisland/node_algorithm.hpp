@@ -2,6 +2,8 @@
 #define PIGISLAND_NODE_ALGORITHM_HPP
 
 #include "kmint/map/map.hpp"
+#include <map>
+#include <memory>
 namespace kmint {
 namespace pigisland {
 
@@ -38,7 +40,11 @@ map::map_node const &find_shark_resting_place(map::map_graph const &graph);
 ///
 /// Find shortest path
 ///
-map::map_node const &find_shortest_route(map::map_graph const &graph, map::map_node& current, map::map_node& end);
+const map::map_node* find_smallest_distance(std::map<const map::map_node*, float>& distances, std::vector<const map::map_node*>& closedList, map::map_node const &end);
+
+
+
+std::unique_ptr<std::vector<const map::map_node*>>find_shortest_route(map::map_node const &current, map::map_node const &end);
  
 } // namespace pigisland
 } // namespace kmint

@@ -12,8 +12,8 @@ int main() {
 	// een app object is nodig om
 	ui::app app{};
 
-	//  maak een venster aan
-	ui::window window{ app.create_window({1024, 768}, "hello") };
+  //  maak een venster aan
+  ui::window window{app.create_window({1024, 768}, "hello", 0.75)};
 
 	// maak walls aan
 	std::vector<pigisland::wall> walls;
