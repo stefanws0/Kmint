@@ -17,10 +17,34 @@ int main() {
 
 	// maak walls aan
 	std::vector<pigisland::wall> walls;
-	walls.push_back(pigisland::wall{ math::vector2d{0, 0}, math::vector2d{1024, 0} });
-	walls.push_back(pigisland::wall{ math::vector2d{1024, 0}, math::vector2d{1024, 768} });
-	walls.push_back(pigisland::wall{ math::vector2d{1024, 768}, math::vector2d{0, 768} });
-	walls.push_back(pigisland::wall{ math::vector2d{0, 768}, math::vector2d{0, 0} });
+	walls.push_back(pigisland::wall{ {16, 112}, {208, 112} });
+	walls.push_back(pigisland::wall{ {208, 112}, {208, 80} });
+	walls.push_back(pigisland::wall{ {208, 80}, {304, 80} });
+	walls.push_back(pigisland::wall{ {304, 80}, {304, 16} });
+	walls.push_back(pigisland::wall{ {304, 16}, {880, 16} });
+	walls.push_back(pigisland::wall{ {880, 16}, {880, 80} });
+	walls.push_back(pigisland::wall{ {880, 80}, {976, 80} });
+	walls.push_back(pigisland::wall{ {976, 80}, {976, 144} });
+	walls.push_back(pigisland::wall{ {976, 144}, {1008, 144} });
+	walls.push_back(pigisland::wall{ {1008, 144}, {1008, 560} });
+	walls.push_back(pigisland::wall{ {1008, 560}, {944, 560} });
+	walls.push_back(pigisland::wall{ {944, 560}, {944, 528} });
+	walls.push_back(pigisland::wall{ {944, 528}, {880, 528} });
+	walls.push_back(pigisland::wall{ {880, 528}, {880, 592} });
+	walls.push_back(pigisland::wall{ {880, 592}, {816, 592} });
+	walls.push_back(pigisland::wall{ {816, 592}, {816, 624} });
+	walls.push_back(pigisland::wall{ {816, 624}, {784, 624} });
+	walls.push_back(pigisland::wall{ {784, 624}, {784, 752} });
+	walls.push_back(pigisland::wall{ {784, 752}, {80, 752} });
+	walls.push_back(pigisland::wall{ {80, 752}, {80, 720} });
+	walls.push_back(pigisland::wall{ {80, 720}, {208, 720} });
+	walls.push_back(pigisland::wall{ {208, 720}, {208, 656} });
+	walls.push_back(pigisland::wall{ {208, 656}, {240, 656} });
+	walls.push_back(pigisland::wall{ {240, 656}, {240, 528} });
+	walls.push_back(pigisland::wall{ {240, 528}, {48, 528} });
+	walls.push_back(pigisland::wall{ {48, 528}, {48, 656} });
+	walls.push_back(pigisland::wall{ {48, 656}, {16, 656} });
+	walls.push_back(pigisland::wall{ {16, 656}, {16, 112} });
 
 	// maak een podium aan
 	play::stage s{};
@@ -34,12 +58,20 @@ int main() {
 	auto& shark = s.build_actor<pigisland::shark>(map.graph());
 	auto& boat = s.build_actor<pigisland::boat>(map.graph());
 
+	std::vector<pigisland::pig*> pigs;
 	for (auto i = 0; i < 100; ++i)
 	{
 		auto& pig = s.build_actor<pigisland::pig>(math::vector2d(i * 10.0f, i * 6.0f), i, walls);
 		pig.set_boat(boat);
 		pig.set_shark(shark);
+		pigs.emplace_back(&pig);
 		shark.add_pig(pig);
+	}
+	for (auto pig : pigs)
+	{
+		auto new_pigs = pigs;
+		new_pigs.erase(std::remove(new_pigs.begin(), new_pigs.end(), pig), new_pigs.end());
+		pig->set_pigs(new_pigs);
 	}
 
 	// Maak een event_source aan (hieruit kun je alle events halen, zoals

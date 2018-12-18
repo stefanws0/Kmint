@@ -23,22 +23,28 @@ namespace kmint {
 			    float separation,
 			    float alignment);
 			bool operator!=(const pig& rhs) const;
+			void set_location(math::vector2d p_location);
 			void set_shark(shark& shark);
 			const ui::drawable &drawable() const override { return drawable_; }
-			void move(math::vector2d delta) { location(location() + delta); }
+			void move(const math::vector2d delta) { location(location() + delta); }
 			void set_boat(boat& boat);
+			void set_pigs(std::vector<pig*> pigs);
+			std::vector<pig*> pigs() const;
 			float max_speed() const;
 			math::vector2d velocity() const;
 			void velocity(math::vector2d velocity);
+			void tag_neighbors();
 			bool tag() const;
+			void tag(bool value);
 			void act(delta_time dt) override;
 			bool perceptive() const override { return true; }
 			scalar range_of_perception() const override { return 30.0f; }
 
 		private:
 			int index_;
-			actor* shark_;
-			actor* boat_;
+			shark* shark_;
+			boat* boat_;
+			std::vector<pig*> pigs_;
 			std::unique_ptr<steering_behaviors> behaviors_;
 			bool tag_;
 			bool boarded_;
@@ -48,8 +54,6 @@ namespace kmint {
 			math::vector2d side_;
 			float mass_;
 			float max_speed_;
-			float max_force_;
-			float max_turn_rate;
 			float shark_attraction_;
 			float boat_attraction_;
 			float cohesion_;

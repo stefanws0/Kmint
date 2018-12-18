@@ -2,11 +2,14 @@
 #include "kmint/pigisland/pig.hpp"
 #include "kmint/pigisland/wall.hpp"
 #include <cmath>
+#include <utility>
 #include "kmint/pigisland/matrix.hpp"
 
 namespace kmint {
 	namespace pigisland {
-		steering_behaviors::steering_behaviors(pig* owner, std::vector<wall> walls ) : owner_ { owner }, walls_{ walls }
+		steering_behaviors::steering_behaviors(pig* owner, std::vector<wall> walls ) : owner_ { owner }, walls_{
+			std::move(walls)
+		}
 		{
 		}
 
@@ -60,11 +63,11 @@ namespace kmint {
 
 		/**
 		 * \brief 
-		 * \param neighbors 
 		 * \return 
 		 */
-		math::vector2d steering_behaviors::separation(const std::vector<pig*>& neighbors) const
+		math::vector2d steering_behaviors::separation() const
 		{
+			const auto& neighbors = owner_->pigs();
 			math::vector2d steering_force;
 
 			for (const auto& neighbor : neighbors)
@@ -73,24 +76,23 @@ namespace kmint {
 				//the agent being examined is close enough.
 				if ((neighbor != owner_) && neighbor->tag())
 				{
-					auto to_agent = owner_->location() - neighbor->location();
+					const auto to_agent = owner_->location() - neighbor->location();
 
 					//scale the force inversely proportional to the agent's distance
 					//from its neighbor.
-					steering_force += math::normalize(to_agent)/ sqrt(to_agent.x() * to_agent.x() + to_agent.y() * to_agent.y());
+					steering_force += math::normalize(to_agent)/ math::norm(to_agent);
 				}
 			}
-			return steering_force;
+			return steering_force * 10;
 		};
 
 		/**
 		 * \brief 
-		 * \param p_pig 
-		 * \param neighbors 
 		 * \return 
 		 */
-		math::vector2d steering_behaviors::alignment(const std::vector<pig*>& neighbors)
+		math::vector2d steering_behaviors::alignment() const
 		{
+			const auto& neighbors = owner_->pigs();
 			//used to record the average heading of the neighbors
 			math::vector2d average_heading;
 			//used to count the number of vehicles in the neighborhood
@@ -118,11 +120,11 @@ namespace kmint {
 
 		/**
 		 * \brief 
-		 * \param neighbors 
 		 * \return 
 		 */
-		math::vector2d steering_behaviors::cohesion(const std::vector<pig*>& neighbors)
+		math::vector2d steering_behaviors::cohesion() const
 		{
+			const auto& neighbors = owner_->pigs();
 			math::vector2d center_of_mass;
 			math::vector2d steering_force;
 			auto neighbor_count = 0;
@@ -149,11 +151,11 @@ namespace kmint {
 
 		inline bool line_intersection(math::vector2d a, math::vector2d b, math::vector2d c, math::vector2d d, double& dist, math::vector2d& point)
 		{
-			const double r_top = (a.y() - c.y())*(d.x() - c.x()) - (a.x() - c.x())*(d.y() - c.y());
-			const double r_bot = (b.x() - a.x())*(d.y() - c.y()) - (b.y() - a.y())*(d.x() - c.x());
+			const double r_top = (a.y() - c.y()) * (d.x() - c.x()) - (a.x() - c.x()) * (d.y() - c.y());
+			const double r_bot = (b.x() - a.x()) * (d.y() - c.y()) - (b.y() - a.y()) * (d.x() - c.x());
 
-			const double s_top = (a.y() - c.y())*(b.x() - a.x()) - (a.x() - c.x())*(b.y() - a.y());
-			const double s_bot = (b.x() - a.x())*(d.y() - c.y()) - (b.y() - a.y())*(d.x() - c.x());
+			const double s_top = (a.y() - c.y()) * (b.x() - a.x()) - (a.x() - c.x()) * (b.y() - a.y());
+			const double s_bot = (b.x() - a.x()) * (d.y() - c.y()) - (b.y() - a.y()) * (d.x() - c.x());
 
 			if ((r_bot == 0) || (s_bot == 0))
 			{
@@ -223,7 +225,7 @@ namespace kmint {
 						distance_to_this_ip,
 						point))
 					{
-						if(distance_to_closest_ip < distance_to_this_ip)
+						if(distance_to_closest_ip > distance_to_this_ip)
 						{
 							distance_to_closest_ip = distance_to_this_ip;
 
@@ -240,7 +242,7 @@ namespace kmint {
 				}
 			}
 
-			return steering_force;
+			return steering_force * 1000;
 		}
 
 		math::vector2d steering_behaviors::obstacle_avoidance(const std::vector<pig*> &obstacles)
@@ -248,30 +250,57 @@ namespace kmint {
 			return {0,0};
 		}
 
+		void steering_behaviors::enforce_non_penetration_constraint() const
+		{
+			auto entities = owner_->pigs();
+			//iterate through all entities checking for any overlap of bounding radii
+			for (const auto entity: entities)
+			{
+				//make sure we don't check against the individual
+				if (entity == owner_) continue;
+				//calculate the distance between the positions of the entities
+				const auto to_entity = owner_->location() - entity->location();
+				const double dist_from_each_other = math::norm(to_entity);
+				//if this distance is smaller than the sum of their radii then this
+				//entity must be moved away in the direction parallel to the
+				//ToEntity vector
+				const auto amount_of_over_lap = 8 + 8 - dist_from_each_other;
+				if (amount_of_over_lap >= 0)
+				{
+					//move the entity a distance away equivalent to the amount of overlap.
+					owner_->set_location(owner_->location() + (to_entity / dist_from_each_other) * amount_of_over_lap);
+				}
+			}//
+		}
+
 		void steering_behaviors::create_feelers()
 		{
 			feelers_.clear();
 			//feeler pointing straight in front
-			feelers_.push_back(owner_->location() + 100 * owner_->heading());
+			feelers_.push_back(owner_->location() + (10 * owner_->heading()));
 
 			//feeler to left
 			auto temp = owner_->heading();
 			rotate_around_origin(temp, (3.14159 / 2) * 3.5f);
-			feelers_.push_back(owner_->location() + 100 / 2.0f * temp);
+			feelers_.push_back(owner_->location() + (10 / 2.0f * temp));
 
 			//feeler to right
 			temp = owner_->heading();
 			rotate_around_origin(temp, (3.14159 / 2) * 0.5f);
-			feelers_.push_back(owner_->location() + 100 / 2.0f * temp);
+			feelers_.push_back(owner_->location() + (10 / 2.0f * temp));
 		}
 
-		math::vector2d steering_behaviors::calculate(const math::vector2d boat_location, const float boat_attraction, const math::vector2d shark_location, const float shark_attraction)
+		math::vector2d steering_behaviors::calculate(const math::vector2d boat_location, const float boat_attraction, const math::vector2d shark_location, const float shark_attraction, const float p_cohesion, const float p_alignment, const float p_separation)
 		{
 			math::vector2d steering_force;
 
-			steering_force += wall_avoidance(walls_) * 10;
+			steering_force += separation() * p_separation;
+			steering_force += cohesion() * p_cohesion;
+			steering_force += alignment() * p_alignment;
+			steering_force += wall_avoidance(walls_);
 			steering_force += arrive(boat_location, 2) * boat_attraction;
-			steering_force += arrive(shark_location, 2) * shark_attraction;
+			steering_force += arrive(shark_location, 2) * shark_attraction; 
+			enforce_non_penetration_constraint();
 
 			return steering_force;
 		}
