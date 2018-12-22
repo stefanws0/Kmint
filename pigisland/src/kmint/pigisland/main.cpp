@@ -58,6 +58,8 @@ int main() {
 	auto& shark = s.build_actor<pigisland::shark>(map.graph());
 	auto& boat = s.build_actor<pigisland::boat>(map.graph());
 
+	shark.add_boat(boat);
+
 	std::vector<pigisland::pig*> pigs;
 	for (auto i = 0; i < 100; ++i)
 	{
@@ -67,6 +69,7 @@ int main() {
 		pigs.emplace_back(&pig);
 		shark.add_pig(pig);
 	}
+
 	for (auto pig : pigs)
 	{
 		auto new_pigs = pigs;

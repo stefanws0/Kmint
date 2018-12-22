@@ -11,9 +11,9 @@ namespace kmint {
 				shark_state(shark* shark);
 				virtual ~shark_state();
 
-				//virtual void perform() = 0;
+				virtual void perform() = 0;
 
-			private:
+			protected:
 				shark* shark_;
 		};
 

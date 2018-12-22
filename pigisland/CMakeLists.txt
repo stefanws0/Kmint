@@ -21,7 +21,11 @@ add_executable(pigisland
   src/kmint/pigisland/matrix.cpp
   src/kmint/pigisland/wall.cpp
   src/kmint/pigisland/pig.cpp
-  src/kmint/pigisland/shark_state.cpp)
+  src/kmint/pigisland/shark_state.cpp
+  src/kmint/pigisland/shark_state_wandering.cpp
+  src/kmint/pigisland/shark_state_attacking.cpp
+  src/kmint/pigisland/shark_state_tired.cpp
+  src/kmint/pigisland/shark_state_scared.cpp)
 
 target_compile_features(pigisland PUBLIC cxx_std_17)
 target_link_libraries(pigisland PRIVATE kmint)
