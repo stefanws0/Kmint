@@ -87,6 +87,21 @@ namespace kmint {
 
 		}
 
+		int pig::calculate_fitness() const
+		{
+			auto fitness = 0;
+				fitness = fitness + boat_attraction_ * 20;
+				fitness = fitness + shark_attraction_ * -20;
+			if(boarded_)
+			{
+				fitness = fitness + 50;
+			}
+			fitness = fitness + cohesion_ * 10;
+			fitness = fitness + alignment_ * 10;
+			fitness = fitness + separation_ * -10;
+			return fitness;
+		}
+
 		void pig::tag_neighbors()
 		{
 			const auto radius = 32.0;

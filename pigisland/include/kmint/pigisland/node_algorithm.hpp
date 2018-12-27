@@ -5,48 +5,48 @@
 #include <map>
 #include <memory>
 namespace kmint {
-namespace pigisland {
+	namespace pigisland {
 
-///
-/// Gets the number of periods for which an entity has to wait before
-/// it can move to an adjacent node
-///
-int waiting_time(map::map_node const &node);
+		///
+		/// Gets the number of periods for which an entity has to wait before
+		/// it can move to an adjacent node
+		///
+		int waiting_time(map::map_node const &node);
 
-///
-/// Finds a random node adjacent to argument node
-///
-map::map_node const &random_adjacent_node(map::map_node const &node);
+		///
+		/// Finds a random node adjacent to argument node
+		///
+		map::map_node const &random_adjacent_node(map::map_node const &node);
 
-///
-/// Finds a node of a given kind (which is the character by which it is
-/// represented textually)
-///
-/// You must take care that a node of the given kind exists. Otherwise the
-/// behaviour of this function is undefined.
-///
-map::map_node const &find_node_of_kind(map::map_graph const &graph, char kind);
+		///
+		/// Finds a node of a given kind (which is the character by which it is
+		/// represented textually)
+		///
+		/// You must take care that a node of the given kind exists. Otherwise the
+		/// behaviour of this function is undefined.
+		///
+		map::map_node const &find_node_of_kind(map::map_graph const &graph, char kind);
 
-///
-/// Finds a random mooring place for the boat
-///
-map::map_node const &find_random_mooring_place(map::map_graph const &graph);
+		///
+		/// Finds a random mooring place for the boat
+		///
+		map::map_node const &find_random_mooring_place(map::map_graph const &graph);
 
-///
-/// Find the shark's resting place.
-///
-map::map_node const &find_shark_resting_place(map::map_graph const &graph);
+		///
+		/// Find the shark's resting place.
+		///
+		map::map_node const &find_shark_resting_place(map::map_graph const &graph);
 
-///
-/// Find shortest path
-///
-const map::map_node* find_smallest_distance(std::map<const map::map_node*, float>& distances, std::vector<const map::map_node*>& closedList, map::map_node const &end);
+		///
+		/// Find shortest path
+		///
+		const map::map_node* find_smallest_distance(std::map<const map::map_node*, float>& distances, std::vector<const map::map_node*>& closedList, map::map_node const &end);
 
 
 
-std::unique_ptr<std::vector<const map::map_node*>>find_shortest_route(map::map_node const &current, map::map_node const &end);
- 
-} // namespace pigisland
+		std::unique_ptr<std::vector<const map::map_node*>>find_shortest_route(map::map_node const &current, map::map_node const &end);
+
+	} // namespace pigisland
 } // namespace kmint
 
 #endif /* PIGISLAND_NODE_ALGORITHM_HPP */

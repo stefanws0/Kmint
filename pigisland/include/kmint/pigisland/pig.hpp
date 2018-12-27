@@ -33,6 +33,7 @@ namespace kmint {
 			float max_speed() const;
 			math::vector2d velocity() const;
 			void velocity(math::vector2d velocity);
+			int calculate_fitness() const;
 			void tag_neighbors();
 			bool tag() const;
 			void tag(bool value);
